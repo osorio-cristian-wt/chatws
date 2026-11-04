@@ -45,13 +45,23 @@ function setConnected(connected) {
 }
 
 function sendMessage() {
-    const username = document.getElementById('username').value;
+    // si no pusieron nombre sale como Anonimo
+    const username = document.getElementById('username').value.trim() || 'Anonimo';
     const content = document.getElementById('message').value;
-    
+
     if (content.trim() === '') return;
-    
-     // Conexion
-    
+
+    if (stompClient === null || !stompClient.connected) {
+        console.warn('No hay conexion con el servidor');
+        return;
+    }
+
+    // va a /app/chat y el ChatController lo reparte a todos
+    stompClient.send('/app/chat', {}, JSON.stringify({
+        usuario: username,
+        contenido: content
+    }));
+
     document.getElementById('message').value = '';
 }
 
