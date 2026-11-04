@@ -86,3 +86,6 @@ document.getElementById('message').addEventListener('keypress', function (e) {
         sendMessage();
     }
 });
+
+// arrancamos desconectados, así el input queda bloqueado hasta conectar
+setConnected(false);
