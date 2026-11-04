@@ -1,9 +1,24 @@
 let stompClient = null;
 
 function connect() {
-    const serverIp = document.getElementById('serverIp').value;
-    
-//conexion y subcripcion
+    // si dejan la ip vacía probamos con localhost
+    const serverIp = document.getElementById('serverIp').value.trim() || 'localhost';
+    const socket = new SockJS('http://' + serverIp + ':8080/ws');
+
+    stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, function (frame) {
+        console.log('Connected: ' + frame);
+        setConnected(true);
+
+        // nos colgamos de la sala pública, cada mensaje que llega se pinta
+        stompClient.subscribe('/topic/public', function (payload) {
+            showMessage(JSON.parse(payload.body));
+        });
+    }, function (error) {
+        console.error('Error de conexion: ', error);
+        setConnected(false);
+    });
 }
 
 function disconnect() {
