@@ -22,9 +22,14 @@ function connect() {
 }
 
 function disconnect() {
-    // Desconectar
+    // cerramos la sesión de verdad, antes solo cambiaba el cartelito
+    if (stompClient !== null) {
+        stompClient.disconnect(function () {
+            console.log("Disconnected");
+        });
+        stompClient = null;
+    }
     setConnected(false);
-    console.log("Disconnected");
 }
 
 function setConnected(connected) {
