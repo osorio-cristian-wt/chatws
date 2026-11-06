@@ -394,8 +394,9 @@ Cliente → @MessageMapping → Método del Controller → @SendTo → Topic →
 ## 🚀 Ejecución del Proyecto
 
 ### Requisitos Previos
-- Java 26 o superior
+- Java 21 o superior
 - Maven 3.6+
+- Docker (para levantar RabbitMQ, ver [Migración a RabbitMQ](#-migración-a-rabbitmq))
 - Navegador web moderno
 
 ### Pasos para Ejecutar
