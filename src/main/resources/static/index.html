@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat WebSocket</title>
+    <script src="/libs/sockjs.min.js"></script>
+    <script src="/libs/stomp.min.js"></script>
+    <!--
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,10 +22,50 @@
             <button onclick="connect()">Conectar</button>
             <button onclick="disconnect()">Desconectar</button>
         </div>
-        <div id="messages"></div>
+        <div class="message-type">
+            <label>
+                <input type="radio" name="messageType" value="public" checked onchange="toggleMessageType()"> Público
+            </label>
+            <label>
+                <input type="radio" name="messageType" value="private" onchange="toggleMessageType()"> Privado
+            </label>
+        </div>
+        <div id="recipientContainer" class="recipient-container" style="display: none;">
+            <input type="text" id="recipient" placeholder="Destinatario">
+        </div>
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('public')">Público</button>
+            <button class="tab-button" onclick="switchTab('private')">Privado</button>
+        </div>
+        <div id="publicMessages" class="tab-content active"></div>
+        <div id="privateMessages" class="tab-content"></div>
         <div class="message-controls">
             <input type="text" id="message" placeholder="Escribe un mensaje...">
             <button onclick="sendMessage()">Enviar</button>
+        </div>
+        <div class="video-controls">
+            <button onclick="startVideo()" id="startVideoBtn">Iniciar Cámara</button>
+            <button onclick="stopVideo()" id="stopVideoBtn" disabled>Detener Cámara</button>
+        </div>
+        <div class="call-controls">
+            <input type="text" id="callRecipient" placeholder="Usuario a llamar">
+            <button onclick="startCall()" id="callBtn" disabled>Llamar</button>
+            <button onclick="endCall()" id="endCallBtn" disabled>Colgar</button>
+        </div>
+        <div class="video-container" id="videoContainer" style="display: none;">
+            <div class="video-wrapper">
+                <video id="localVideo" autoplay playsinline muted></video>
+                <span class="video-label">Tú</span>
+            </div>
+            <div class="video-wrapper">
+                <video id="remoteVideo" autoplay playsinline></video>
+                <span class="video-label">Remoto</span>
+            </div>
+        </div>
+        <div class="incoming-call-notification" id="incomingCallNotification" style="display: none;">
+            <span id="callerName">Usuario</span> te está llamando
+            <button onclick="acceptCall()">Aceptar</button>
+            <button onclick="rejectCall()">Rechazar</button>
         </div>
     </div>
 

@@ -1,3 +1,22 @@
 spring:
   application:
     name: chatws
+  # datos del rabbit, se pueden pisar con variables de entorno si no corre en localhost
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASS:guest}
+chat:
+  rabbitmq:
+    # puerto del plugin stomp, es al que se conecta el relay del websocket
+    stomp-port: ${RABBITMQ_STOMP_PORT:61613}
+server:
+  port: 8443
+  address: 0.0.0.0
+  ssl:
+    key-store: classpath:keystore.p12
+    key-store-password: chatws123
+    key-store-type: PKCS12
+    key-alias: chatws
+    enabled: true
