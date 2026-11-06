@@ -45,6 +45,12 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
+        <!-- cliente amqp de spring, trae la config de spring.rabbitmq -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
