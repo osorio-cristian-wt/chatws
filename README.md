@@ -10,6 +10,7 @@ Este proyecto implementa un sistema de chat en tiempo real utilizando **WebSocke
 4. [Flujo de Mensajes](#flujo-de-mensajes)
 5. [Glosario de Conceptos](#glosario-de-conceptos)
 6. [Ejecución del Proyecto](#ejecución-del-proyecto)
+7. [Migración a RabbitMQ](#-migración-a-rabbitmq)
 
 ---
 
@@ -455,6 +456,41 @@ Para acceder a la cámara desde un dispositivo Android conectado vía WiFi:
 2. Conecta cada una con diferentes nombres de usuario
 3. Envía mensajes desde una pestaña
 4. Observa cómo los mensajes aparecen en todas las pestañas en tiempo real
+
+---
+
+## 🐇 Migración a RabbitMQ
+
+Antes el chat usaba `enableSimpleBroker()`, un broker en memoria que anda bien con una sola instancia pero si la app se cae se pierde todo y no se puede escalar. Ahora `WebSocketConfig` usa `enableStompBrokerRelay()` y todo lo que va a `/topic` y `/queue` lo maneja un RabbitMQ externo por STOMP.
+
+### Qué cambió
+
+- `pom.xml`: se agregó `spring-boot-starter-amqp` y `reactor-netty-core` (el relay usa netty para la conexión TCP, sin eso no arranca).
+- `application.yaml`: bloque `spring.rabbitmq` con host, puerto y credenciales, más `chat.rabbitmq.stomp-port` para el puerto STOMP.
+- `WebSocketConfig.java`: `enableSimpleBroker(TOPIC, "/queue")` pasó a `enableStompBrokerRelay(TOPIC, "/queue")` tomando host, puerto y usuario de la config.
+- `docker-compose.yml` + `rabbitmq/enabled_plugins`: RabbitMQ con el plugin `rabbitmq_stomp` prendido (no viene activo por defecto).
+
+### Cómo levantarlo
+
+```bash
+docker compose up -d      # rabbit con stomp en 61613 y panel en http://localhost:15672 (guest/guest)
+./mvnw spring-boot:run    # el chat en https://localhost:8443
+```
+
+Si el rabbit corre en otro lado se cambia con variables de entorno, sin tocar el código:
+
+| Variable | Default |
+|---|---|
+| `RABBITMQ_HOST` | `localhost` |
+| `RABBITMQ_PORT` | `5672` |
+| `RABBITMQ_STOMP_PORT` | `61613` |
+| `RABBITMQ_USER` / `RABBITMQ_PASS` | `guest` / `guest` |
+
+### Cosas a tener en cuenta
+
+- Los mensajes públicos (`/topic/public`) van al exchange `amq.topic` y cada cliente conectado tiene su cola temporal.
+- Los privados (`/queue/{usuario}`) crean una cola con el nombre del usuario que queda en RabbitMQ aunque se desconecte, así que si le escriben mientras no está le llega al volver a conectarse. Se pueden ver en la pestaña *Queues* del panel.
+- Si se abren dos pestañas con el mismo usuario, los privados se reparten entre las dos (es una sola cola), no llegan duplicados.
 
 ---
 
