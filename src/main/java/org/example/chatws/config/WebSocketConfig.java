@@ -1,6 +1,7 @@
 package org.example.chatws.config;
 
 import org.example.chatws.utility.Constants;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -20,6 +21,16 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     // Prefijo para los destinos de la aplicación (mensajes enviados por clientes)
     public static final String APP = "/app";
 
+    // mismos datos que usa spring.rabbitmq, así se configura todo en un solo lugar
+    @Value("${spring.rabbitmq.host}")
+    private String relayHost;
+    @Value("${chat.rabbitmq.stomp-port}")
+    private int relayPort;
+    @Value("${spring.rabbitmq.username}")
+    private String relayUser;
+    @Value("${spring.rabbitmq.password}")
+    private String relayPass;
+
     /**
      * Configura el broker de mensajes.
      * - enableStompBrokerRelay: Reenvía los mensajes de /topic (broadcast) y /queue (privado)
@@ -32,10 +43,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         // antes era enableSimpleBroker (en memoria), ahora todo pasa por el rabbit
-        // 61613 es el puerto del plugin stomp de rabbitmq
+        // el puerto es el del plugin stomp (61613), no el 5672 de amqp
         config.enableStompBrokerRelay(TOPIC, "/queue")
-                .setRelayHost("localhost")
-                .setRelayPort(61613);
+                .setRelayHost(relayHost)
+                .setRelayPort(relayPort)
+                // system es la conexión compartida del server, client la de cada usuario conectado
+                .setSystemLogin(relayUser)
+                .setSystemPasscode(relayPass)
+                .setClientLogin(relayUser)
+                .setClientPasscode(relayPass);
         config.setApplicationDestinationPrefixes(APP);
     }
 

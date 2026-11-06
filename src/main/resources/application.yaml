@@ -7,6 +7,10 @@ spring:
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USER:guest}
     password: ${RABBITMQ_PASS:guest}
+chat:
+  rabbitmq:
+    # puerto del plugin stomp, es al que se conecta el relay del websocket
+    stomp-port: ${RABBITMQ_STOMP_PORT:61613}
 server:
   port: 8443
   address: 0.0.0.0
