@@ -1,0 +1,13 @@
+# rabbit para el chat: docker compose up -d
+# panel en http://localhost:15672 (guest / guest)
+services:
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: chatws-rabbitmq
+    ports:
+      - "5672:5672"     # amqp
+      - "61613:61613"   # stomp, el que usa el relay del websocket
+      - "15672:15672"   # panel web
+    volumes:
+      # prende el plugin stomp ademas del management, sin esto el relay no conecta
+      - ./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
