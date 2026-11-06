@@ -22,16 +22,20 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     /**
      * Configura el broker de mensajes.
-     * - enableSimpleBroker: Habilita un broker en memoria simple para mensajes de tipo topic y queue.
-     *   Los clientes pueden suscribirse a destinos que comienzan con /topic (broadcast) y /queue (privado).
+     * - enableStompBrokerRelay: Reenvía los mensajes de /topic (broadcast) y /queue (privado)
+     *   a un RabbitMQ externo por STOMP, en lugar de usar el broker en memoria.
      * - setApplicationDestinationPrefixes: Define el prefijo para destinos de mensajes
      *   enviados desde el cliente al servidor (ej: /app/chat.sendMessage).
-     * 
+     *
      * @param config Registro de configuración del broker de mensajes
      */
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker(TOPIC, "/queue");
+        // antes era enableSimpleBroker (en memoria), ahora todo pasa por el rabbit
+        // 61613 es el puerto del plugin stomp de rabbitmq
+        config.enableStompBrokerRelay(TOPIC, "/queue")
+                .setRelayHost("localhost")
+                .setRelayPort(61613);
         config.setApplicationDestinationPrefixes(APP);
     }
 
