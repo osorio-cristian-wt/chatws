@@ -116,7 +116,13 @@ function showMessage(message) {
     const messages = message.destinatario ? document.getElementById('privateMessages') : document.getElementById('publicMessages');
     const messageDiv = document.createElement('div');
     messageDiv.className = 'message';
-    messageDiv.innerHTML = '<strong>' + message.usuario + ':</strong> ' + message.contenido;
+
+    // nada de innerHTML, si alguien manda un <script> se ejecutaba en todos los navegadores
+    const user = document.createElement('strong');
+    user.textContent = message.usuario + ':';
+    messageDiv.appendChild(user);
+    messageDiv.appendChild(document.createTextNode(' ' + message.contenido));
+
     messages.appendChild(messageDiv);
     messages.scrollTop = messages.scrollHeight;
 }
