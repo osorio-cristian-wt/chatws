@@ -8,6 +8,11 @@ services:
       - "5672:5672"     # amqp
       - "61613:61613"   # stomp, el que usa el relay del websocket
       - "15672:15672"   # panel web
+    environment:
+      # la imagen nueva no puede leer su propia .erlang.cookie (eacces) y se cae al arrancar,
+      # pasandole la cookie por argumento no la busca en el archivo
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "-setcookie chatws"
+      RABBITMQ_CTL_ERL_ARGS: "-setcookie chatws"
     volumes:
       # prende el plugin stomp ademas del management, sin esto el relay no conecta
       - ./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
